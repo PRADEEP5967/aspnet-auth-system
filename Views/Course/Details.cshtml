@@ -1,0 +1,44 @@
+@model AspNetAuthSystem.DTOs.CourseDTO
+
+@{
+    ViewData["Title"] = $"{Model.Title} - Course Details";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@Model.Title</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p>@Model.Description</p>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Teacher:</strong>
+                            <p>@Model.TeacherName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Created:</strong>
+                            <p>@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        @if (User.IsInRole("Student"))
+                        {
+                            <a href="@Url.Action("Enroll", "Course", new { id = Model.Id })" class="btn btn-success">Enroll Now</a>
+                        }
+                        <a href="@Url.Action("Index", "Course")" class="btn btn-secondary">Back to Courses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
