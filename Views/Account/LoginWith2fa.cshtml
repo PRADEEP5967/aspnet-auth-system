@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">🔐 Two-Factor Authentication</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Enter the 6-digit code from your authenticator app:</p>
+
+                <form method="post" asp-action="LoginWith2fa">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label for="code" class="form-label">Authentication Code</label>
+                        <input type="text" id="code" name="code" class="form-control text-center" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required />
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" />
+                        <label class="form-check-label" for="rememberMe">Remember this device</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-info w-100">🔓 Verify</button>
+                </form>
+
+                <hr />
+                <p class="text-center">
+                    <a asp-action="Login" class="btn btn-link p-0">Back to Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
