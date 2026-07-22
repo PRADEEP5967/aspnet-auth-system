@@ -139,6 +139,7 @@ async Task SeedDatabase(IServiceProvider serviceProvider)
     var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
     var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
     var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
     try
     {
@@ -168,127 +169,51 @@ async Task SeedDatabase(IServiceProvider serviceProvider)
             }
         }
 
-        // Create Admin User
-        var adminUser = await userManager.FindByNameAsync("admin");
-        if (adminUser == null)
+        // Create Admin User from configuration
+        var adminConfig = configuration.GetSection("AdminAccount");
+        var adminUsername = adminConfig["Username"];
+        var adminEmail = adminConfig["Email"];
+        var adminPassword = adminConfig["Password"];
+        var adminFirstName = adminConfig["FirstName"] ?? "Admin";
+        var adminLastName = adminConfig["LastName"] ?? "User";
+
+        if (!string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
         {
-            adminUser = new User
+            var adminUser = await userManager.FindByNameAsync(adminUsername);
+            if (adminUser == null)
             {
-                UserName = "admin",
-                Email = "admin@example.com",
-                FirstName = "Admin",
-                LastName = "User",
-                EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-
-            var result = await userManager.CreateAsync(adminUser, "Admin@123");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-                logger.LogInformation("Admin user created successfully.");
-            }
-            else
-            {
-                logger.LogError("Failed to create admin user: {Errors}", 
-                    string.Join(", ", result.Errors.Select(e => e.Description)));
-            }
-        }
-
-        // Create Teacher User
-        var teacherUser = await userManager.FindByNameAsync("teacher");
-        if (teacherUser == null)
-        {
-            teacherUser = new User
-            {
-                UserName = "teacher",
-                Email = "teacher@example.com",
-                FirstName = "John",
-                LastName = "Doe",
-                EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-
-            var result = await userManager.CreateAsync(teacherUser, "Teacher@123");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(teacherUser, "Teacher");
-                logger.LogInformation("Teacher user created successfully.");
-            }
-            else
-            {
-                logger.LogError("Failed to create teacher user: {Errors}", 
-                    string.Join(", ", result.Errors.Select(e => e.Description)));
-            }
-        }
-
-        // Create Student User
-        var studentUser = await userManager.FindByNameAsync("student");
-        if (studentUser == null)
-        {
-            studentUser = new User
-            {
-                UserName = "student",
-                Email = "student@example.com",
-                FirstName = "Jane",
-                LastName = "Smith",
-                EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-
-            var result = await userManager.CreateAsync(studentUser, "Student@123");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(studentUser, "Student");
-                logger.LogInformation("Student user created successfully.");
-            }
-            else
-            {
-                logger.LogError("Failed to create student user: {Errors}", 
-                    string.Join(", ", result.Errors.Select(e => e.Description)));
-            }
-        }
-
-        // Seed Sample Courses
-        if (!context.Courses.Any())
-        {
-            if (teacherUser != null)
-            {
-                var courses = new List<Course>
+                adminUser = new User
                 {
-                    new Course
-                    {
-                        Title = "C# Fundamentals",
-                        Description = "Learn the basics of C# programming language",
-                        Content = "This course covers variables, loops, functions, object-oriented programming concepts, and best practices.",
-                        TeacherId = teacherUser.Id,
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Course
-                    {
-                        Title = "ASP.NET Core Web Development",
-                        Description = "Build modern web applications with ASP.NET Core MVC",
-                        Content = "Learn MVC architecture, Entity Framework, authentication, authorization, and deployment strategies.",
-                        TeacherId = teacherUser.Id,
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Course
-                    {
-                        Title = "Database Design with SQL Server",
-                        Description = "Master SQL Server and database design principles",
-                        Content = "Cover normalization, indexes, stored procedures, query optimization, and data integrity.",
-                        TeacherId = teacherUser.Id,
-                        CreatedAt = DateTime.UtcNow
-                    }
+                    UserName = adminUsername,
+                    Email = adminEmail,
+                    FirstName = adminFirstName,
+                    LastName = adminLastName,
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
                 };
 
-                await context.Courses.AddRangeAsync(courses);
-                await context.SaveChangesAsync();
-                logger.LogInformation("Sample courses seeded successfully.");
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    logger.LogInformation("Admin user '{AdminUsername}' created successfully.", adminUsername);
+                }
+                else
+                {
+                    logger.LogError("Failed to create admin user '{AdminUsername}': {Errors}", 
+                        adminUsername,
+                        string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
             }
+            else
+            {
+                logger.LogInformation("Admin user '{AdminUsername}' already exists.", adminUsername);
+            }
+        }
+        else
+        {
+            logger.LogWarning("Admin account configuration is incomplete in appsettings.json. Skipping admin user creation.");
         }
 
         logger.LogInformation("Database seeding completed successfully.");

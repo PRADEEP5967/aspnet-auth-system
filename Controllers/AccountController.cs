@@ -1,6 +1,7 @@
 using AspNetAuthSystem.DTOs;
 using AspNetAuthSystem.Models;
 using AspNetAuthSystem.Services.Email;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,13 +35,16 @@ namespace AspNetAuthSystem.Controllers
             _logger = logger;
         }
 
+        // Student Registration - Public access
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterDTO model)
         {
@@ -62,18 +66,17 @@ namespace AspNetAuthSystem.Controllers
                 {
                     try
                     {
-                        // Assign role
-                        var role = model.Role ?? "Student";
-                        if (!await _roleManager.RoleExistsAsync(role))
+                        // Assign Student role only
+                        if (!await _roleManager.RoleExistsAsync("Student"))
                         {
-                            await _roleManager.CreateAsync(new Role { Name = role, NormalizedName = role.ToUpper() });
+                            await _roleManager.CreateAsync(new Role { Name = "Student", NormalizedName = "STUDENT" });
                         }
-                        await _userManager.AddToRoleAsync(user, role);
+                        await _userManager.AddToRoleAsync(user, "Student");
 
                         // Send welcome email
-                        await _emailNotificationService.SendRegistrationWelcomeEmailAsync(user, role, _emailSender);
+                        await _emailNotificationService.SendRegistrationWelcomeEmailAsync(user, "Student", _emailSender);
 
-                        _logger.LogInformation("User {UserId} registered successfully with role {Role}", user.Id, role);
+                        _logger.LogInformation("Student user {UserId} registered successfully", user.Id);
 
                         // Sign in the user
                         await _signInManager.SignInAsync(user, isPersistent: false);
@@ -99,6 +102,7 @@ namespace AspNetAuthSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -106,6 +110,7 @@ namespace AspNetAuthSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginDTO model, string? returnUrl = null)
         {
@@ -168,13 +173,115 @@ namespace AspNetAuthSystem.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        // Admin Teacher Management
+        [Authorize(Roles = "Admin")]
         [HttpGet]
+        public IActionResult CreateTeacher()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateTeacher(RegisterDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new User
+                {
+                    UserName = model.UserName,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    try
+                    {
+                        // Assign Teacher role
+                        if (!await _roleManager.RoleExistsAsync("Teacher"))
+                        {
+                            await _roleManager.CreateAsync(new Role { Name = "Teacher", NormalizedName = "TEACHER" });
+                        }
+                        await _userManager.AddToRoleAsync(user, "Teacher");
+
+                        _logger.LogInformation("Teacher user {UserId} created successfully by Admin", user.Id);
+                        TempData["Success"] = $"Teacher '{model.UserName}' created successfully.";
+                        return RedirectToAction(nameof(ManageTeachers));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error creating teacher user {UserId}", user.Id);
+                        ModelState.AddModelError(string.Empty, "Error occurred while creating teacher. Please try again.");
+                    }
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    _logger.LogWarning("Teacher creation error: {Error}", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return View(model);
+        }
+
+        // Admin Teacher Management List
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> ManageTeachers()
+        {
+            var teachers = await _userManager.GetUsersInRoleAsync("Teacher");
+            return View(teachers.Cast<User>().ToList());
+        }
+
+        // Admin Delete Teacher
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTeacher(int id)
+        {
+            var teacher = await _userManager.FindByIdAsync(id.ToString());
+            if (teacher != null)
+            {
+                var result = await _userManager.DeleteAsync(teacher);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("Teacher {UserId} deleted successfully by Admin", teacher.Id);
+                    TempData["Success"] = "Teacher deleted successfully.";
+                }
+                else
+                {
+                    TempData["Error"] = "Error deleting teacher.";
+                }
+            }
+            return RedirectToAction(nameof(ManageTeachers));
+        }
+
+        // Teacher Role Management - Teachers manage their assigned courses and students
+        [Authorize(Roles = "Teacher")]
+        [HttpGet]
+        public IActionResult TeacherDashboard()
+        {
+            return View();
+        }
+
+        // Password Reset
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(string email)
         {
@@ -215,12 +322,14 @@ namespace AspNetAuthSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ResetPassword(int? userId, string? code = null)
         {
             if (code == null || userId == null)
@@ -233,6 +342,7 @@ namespace AspNetAuthSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordDTO model)
         {
@@ -272,6 +382,7 @@ namespace AspNetAuthSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ResetPasswordConfirmation()
         {
             return View();
@@ -325,6 +436,7 @@ namespace AspNetAuthSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();
