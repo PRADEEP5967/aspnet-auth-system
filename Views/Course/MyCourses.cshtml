@@ -1,0 +1,52 @@
+@model List<AspNetAuthSystem.DTOs.CourseDTO>
+
+@{
+    ViewData["Title"] = "My Enrolled Courses";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>📚 My Enrolled Courses</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Index", "Course")" class="btn btn-primary">🔍 Browse More Courses</a>
+        </div>
+    </div>
+
+    @if (Model?.Count > 0)
+    {
+        <div class="row">
+            @foreach (var course in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">@course.Title</h5>
+                            <p class="card-text text-muted">@(course.Description.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <strong>👨‍🏫 Teacher:</strong> @course.TeacherName<br />
+                                    <strong>📅 Enrolled:</strong> @course.CreatedAt.ToString("yyyy-MM-dd")
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="@Url.Action("Details", "Course", new { id = course.Id })" class="btn btn-sm btn-primary">👁️ View Course</a>
+                            <form method="post" asp-action="Unenroll" asp-route-id="@course.Id" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to unenroll from this course?')">❌ Unenroll</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">📭 No Courses Enrolled</h4>
+            <p>You haven't enrolled in any courses yet. <a href="@Url.Action("Index", "Course")" class="alert-link">Browse available courses</a>!</p>
+        </div>
+    }
+</div>

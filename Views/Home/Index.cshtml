@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center mt-5">
+    <h1 class="display-4">🎓 Welcome to ASP.NET Core Auth System</h1>
+    <p class="lead text-muted">A complete authentication system with role-based access control</p>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body">
+                <h5 class="card-title">🔐 Secure Authentication</h5>
+                <p class="card-text">Login and Register with ASP.NET Core Identity integration, secure password hashing, and account management.</p>
+                @if (User?.Identity?.IsAuthenticated != true)
+                {
+                    <a href="@Url.Action("Login", "Account")" class="btn btn-primary btn-sm">Login</a>
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-success btn-sm">Register</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body">
+                <h5 class="card-title">👥 Role-Based Access</h5>
+                <p class="card-text">Admin, Teacher, and Student roles with specific permissions and dedicated dashboards for each role.</p>
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <span class="badge bg-primary me-2">Authenticated ✓</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body">
+                <h5 class="card-title">📚 Course Management</h5>
+                <p class="card-text">Teachers can create and manage courses, students can browse and enroll in available courses.</p>
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <a href="@Url.Action("Index", "Course")" class="btn btn-warning btn-sm">View Courses</a>
+                }
+                else
+                {
+                    <button class="btn btn-warning btn-sm" disabled>View Courses</button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body">
+                <h5 class="card-title">🛡️ Password Security</h5>
+                <p class="card-text">Secure password hashing, password reset functionality, and account lockout protection.</p>
+                @if (User?.Identity?.IsAuthenticated != true)
+                {
+                    <a href="@Url.Action("ForgotPassword", "Account")" class="btn btn-secondary btn-sm">Reset Password</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User?.Identity?.IsAuthenticated == true)
+{
+    <div class="alert alert-info mt-4" role="alert">
+        <h5 class="alert-heading">👋 Welcome, @User.Identity.Name!</h5>
+        <p class="mb-2">Your Roles:</p>
+        <div>
+            @foreach (var role in User.FindAll(System.Security.Claims.ClaimTypes.Role))
+            {
+                <span class="badge bg-primary me-2">@role.Value</span>
+            }
+        </div>
+        <hr />
+        <p class="mb-0">Click on your role in the navigation to access your dedicated dashboard.</p>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning mt-4" role="alert">
+        <h5 class="alert-heading">👋 Welcome Guest!</h5>
+        <p class="mb-0"><a asp-action="Login" asp-controller="Account" class="alert-link">Login</a> or <a asp-action="Register" asp-controller="Account" class="alert-link">Register</a> to get started.</p>
+    </div>
+}

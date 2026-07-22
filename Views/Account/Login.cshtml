@@ -1,0 +1,60 @@
+@model AspNetAuthSystem.DTOs.LoginDTO
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">🔐 Login</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="Login">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="EmailOrUsername" class="form-label">Email or Username</label>
+                        <input asp-for="EmailOrUsername" class="form-control" placeholder="Enter email or username" />
+                        <span asp-validation-for="EmailOrUsername" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Password</label>
+                        <input asp-for="Password" class="form-control" type="password" placeholder="Enter password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" asp-for="RememberMe" />
+                        <label class="form-check-label" asp-for="RememberMe">Remember Me</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 mb-3">🔓 Login</button>
+                </form>
+
+                <hr />
+                <p class="text-center mb-2">
+                    <a asp-action="ForgotPassword" class="btn btn-link p-0">Forgot your password?</a>
+                </p>
+                <p class="text-center">
+                    Don't have an account? <a asp-action="Register" class="btn btn-link p-0">Register here</a>
+                </p>
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <strong>ℹ️ Demo Credentials:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li><strong>Admin:</strong> admin / Admin@123</li>
+                        <li><strong>Teacher:</strong> teacher / Teacher@123</li>
+                        <li><strong>Student:</strong> student / Student@123</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

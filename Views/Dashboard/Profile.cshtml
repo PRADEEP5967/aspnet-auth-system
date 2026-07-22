@@ -1,0 +1,80 @@
+@model AspNetAuthSystem.Models.User
+
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">👤 User Profile</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>First Name:</strong>
+                            <p>@Model.FirstName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Last Name:</strong>
+                            <p>@Model.LastName</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Username:</strong>
+                            <p>@Model.UserName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Email:</strong>
+                            <p>@Model.Email</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>📅 Created:</strong>
+                            <p>@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Status:</strong>
+                            <p>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">✅ Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">❌ Inactive</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <strong>👥 Roles:</strong>
+                            <p>
+                                @foreach (var role in User.FindAll(System.Security.Claims.ClaimTypes.Role))
+                                {
+                                    <span class="badge bg-info me-2">@role.Value</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <button class="btn btn-primary" disabled>✏️ Edit Profile</button>
+                        <button class="btn btn-warning" disabled>🔑 Change Password</button>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">🏠 Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

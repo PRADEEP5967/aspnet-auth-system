@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">👨‍💼 Welcome Admin Dashboard</h4>
+                <p class="mb-0">You have full access to the system administration panel.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h5 class="card-title">👥 User Management</h5>
+                    <p class="card-text">Manage all users, roles, and permissions in the system.</p>
+                    <button class="btn btn-primary" disabled>👷 Coming Soon</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h5 class="card-title">📊 System Analytics</h5>
+                    <p class="card-text">View system statistics and user activity reports.</p>
+                    <button class="btn btn-info" disabled>📈 Coming Soon</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h5 class="card-title">⚙️ System Settings</h5>
+                    <p class="card-text">Configure system settings and security options.</p>
+                    <button class="btn btn-warning" disabled>🔧 Coming Soon</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📋 Recent System Activities</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No recent activities to display.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="@Url.Action("Profile", "Dashboard")" class="btn btn-secondary">👤 View Profile</a>
+    </div>
+</div>

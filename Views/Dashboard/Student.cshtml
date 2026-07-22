@@ -1,0 +1,70 @@
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">👨‍🎓 Welcome to Student Dashboard</h4>
+                <p class="mb-0">Browse courses and enroll to start learning.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h5 class="card-title">📚 My Courses</h5>
+                    <p class="card-text">View all your enrolled courses.</p>
+                    <a href="@Url.Action("MyCourses", "Course")" class="btn btn-info">📖 View My Courses</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🔍 Browse Courses</h5>
+                    <p class="card-text">Browse and enroll in available courses.</p>
+                    <a href="@Url.Action("Index", "Course")" class="btn btn-info">🎓 Browse Courses</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h5 class="card-title">📈 My Progress</h5>
+                    <p class="card-text">Track your learning progress.</p>
+                    <button class="btn btn-success" disabled>🔍 Coming Soon</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📊 Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Enrolled Courses:</strong> <span class="badge bg-primary">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Completed Courses:</strong> <span class="badge bg-success">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="@Url.Action("Profile", "Dashboard")" class="btn btn-secondary">👤 View Profile</a>
+    </div>
+</div>
